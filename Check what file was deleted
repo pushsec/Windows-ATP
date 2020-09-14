@@ -1,0 +1,2 @@
+DeviceFileEvents
+| where DeviceName contains "name" and ActioType != "FileRenamed" and ActionType !="FileCreated" and ActionType != "FileModified"
