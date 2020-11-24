@@ -1,0 +1,3 @@
+DeviceLogonEvents
+| where ActionType == "LogonSuccess" and isLocalAdmin == 1
+| summarize by DevieName,TimeStamp,AccountName,LogonType,IsLocalAdmin,AccountSid

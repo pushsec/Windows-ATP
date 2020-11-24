@@ -1,0 +1,13 @@
+DeviceEvents
+| where Timestamp > ago(30d) and ActionType == "UsbDriveMount"
+| project USBMountTime = Timestamp,DeviceName, AdditionalFields
+| extend DriveLetter = toastring(todynamic(AdditionalFields).DriveLetter)
+| join (
+DeviceFileEvents
+| where Timestamp > ago(30d)
+| where ActionType == "FileCreated"
+where FileName endswith ".docx" or FileName endswith ".pptx" or FileName endswith ".doc" or FileName endswith ".csv" or FileName endswith ".pdf" or FileName endswith ".xls" or FileName endswith ".xlsx" or FileName endswith ".zip" or FileName endswith ".ppt"
+and FolderPath startswith 'C\\'
+)on DeviceName
+| where (Timestamp - USBMountTime) between (0min .. 5 min)
+|summarize by USBMountTime,Timestamp,RequestAccountName,DeviceName,AdditionalFields,FileName,FolderPath, InitiatingProcessAccountUpn

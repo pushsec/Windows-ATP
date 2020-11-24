@@ -1,0 +1,8 @@
+DeviceFileEvents
+| where InitiatingProcessAccountName !contains "system"
+| where FolderPath !contains "Program Files (x86)"
+and FolderPath !contains "Program Files"
+and FolderPath !contains "C:\\Widows"
+and FileName endswith ".exe"
+| summarize by AccountName, DeviceName, FileName,FolderPath
+| sort by FileName

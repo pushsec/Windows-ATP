@@ -1,0 +1,19 @@
+DeviceEvents
+| where Timestamp > ago(30)
+| where ActionType == "UsbDriveMount"
+| project UsbMountTime = Timestamp, DeviceId, AdditionalFields
+| extend DriveLetter = tostring(todynamic(AdditionalFields).DriverLetter)
+| join (
+DeviceFileEvents
+| where Timestamp > ago(30)
+| where ActionType == "FileCreated"
+| where FileName endswith ".docx" or FileName endswith ".pptx" or FileName endswith ".doc" or FileName endswith ".csv" or FileName endswith ".pdf" or FileName endswith ".xls" or FileName endswith ".xlsx" or FileName endswith ".zip" or FileName endswith ".ppt"
+| parse FolderPath with DriveLetter '\\' *
+| extend DriveLetter = tostring(DriveLetter)
+)
+on DeviceId, DriveLetter
+| where (Timestamp - USBMountTime) between (0min .. 30min)
+| summarize DistinctFilesCopied = dcount(SHA1), Events=makeset(pack("AccountName",InitiatingProcessAccountName, "Timestamp",Timestamp,"FileName",Filename,"AdditionalDriveProperties",AdditionalFields)) by DeviceName, bin(Timestamp,15m)
+| where DistinctFilesCopied > 1
+| mv-expand Events
+| extend Timestmp = todatetime(Events.Timestamp), FileName = Events.FileName, AccountName = Events.AccountName, ReportID = tolog(Events.ReportId), AdditionalDriveProperties = Events.AditionalDriveProperties

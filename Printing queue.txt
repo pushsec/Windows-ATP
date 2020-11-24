@@ -1,0 +1,10 @@
+DeviceFileEvents
+| where timestamp > ago(1d)
+| where InitiatingProcessComandline == "spoolsv.exe" and InitiatingProcessFileName == "spoolsv.exe"
+and FileName !endswith ".dll"
+and FileName !endswith ".exe"
+and FileName !endswith ".tmp"
+and FileName !endswith ".cfg"
+and FileName !endswith ".XpsPrint"
+and FileName !endswith ".CNM"
+| project Timestamp,RequestAccountName,FileName,FolderPath,DeviceName,InitiatingProcessCreationTime

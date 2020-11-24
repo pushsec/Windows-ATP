@@ -1,0 +1,5 @@
+DeviceProcessEvents
+| where FileName == "MpCmdRun.exe"
+| where FolderPath == @"C:\Program Files\Windows Defender\MpCmdRun.exe"
+| where ProcessComandLine contains @"MpCmdRun.exe"
+and ProcessCommandLine contains @"-DownloadFile"
